@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATS Scout — Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/sidepanel.js"></script>
+  <link rel="modulepreload" crossorigin href="/providers.js">
+  <link rel="stylesheet" crossorigin href="/sidepanel.css">
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- Header -->
+  <header class="sp-header">
+    <div class="sp-header-left">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L17 17H3L10 2Z" fill="#f59e0b" opacity="0.9"/>
+        <path d="M10 7L13.5 14.5H6.5L10 7Z" fill="#0a0a0f"/>
+      </svg>
+      <span class="sp-logo-text">ATS Scout</span>
+      <div id="provider-badge" class="provider-badge hidden"></div>
+    </div>
+    <div class="sp-header-right">
+      <button id="btn-history" class="sp-btn-ghost" type="button">History</button>
+      <button id="btn-export" class="sp-btn-ghost" type="button">Export PDF</button>
+      <button id="btn-theme" class="sp-icon-btn" type="button" aria-label="Toggle theme">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v2M7 11v2M1 7h2M11 7h2M3 3l1.4 1.4M9.6 9.6L11 11M3 11l1.4-1.4M9.6 4.4L11 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- History panel (overlay) -->
+  <div id="history-panel" class="history-panel hidden">
+    <div class="history-header">
+      <span class="history-title">Analysis History</span>
+      <div class="history-actions">
+        <button id="btn-clear-history" class="sp-btn-ghost danger">Clear all</button>
+        <button id="btn-close-history" class="sp-icon-btn" type="button">×</button>
+      </div>
+    </div>
+    <div id="history-list" class="history-list"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      <path d="M24 6L40 40H8L24 6Z" fill="#f59e0b" opacity="0.3"/>
+      <path d="M24 18L32 36H16L24 18Z" fill="#f59e0b" opacity="0.5"/>
+    </svg>
+    <p class="empty-title">No analysis yet</p>
+    <p class="empty-subtitle">Open the ATS Scout popup, paste your resume PDF and job description, then click Run Analysis.</p>
+  </div>
+
+  <!-- Main results layout -->
+  <main id="results-layout" class="results-layout hidden">
+    <!-- Left: PDF viewer -->
+    <section class="pdf-col" id="pdf-col">
+      <div id="severity-legend" class="severity-legend">
+        <span class="legend-chip high">High</span>
+        <span class="legend-chip medium">Med</span>
+        <span class="legend-chip low">Low</span>
+      </div>
+      <div id="pdf-pages-container" class="pdf-pages-container"></div>
+      <div id="page-nav" class="page-nav hidden">
+        <button id="btn-prev-page" class="sp-btn-ghost" type="button">←</button>
+        <span id="page-indicator" class="page-indicator">1 / 1</span>
+        <button id="btn-next-page" class="sp-btn-ghost" type="button">→</button>
+      </div>
+    </section>
+
+    <!-- Right: analysis -->
+    <section class="analysis-col" id="analysis-col">
+      <!-- Submit ready banner -->
+      <div id="submit-ready-banner" class="submit-ready-banner hidden">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8l4 4 8-8" stroke="#10b981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="submit-ready-text"></span>
+      </div>
+
+      <!-- ATS Score Rings -->
+      <div class="card" id="score-card">
+        <div class="card-header">ATS SCORE</div>
+        <div class="score-rings-container">
+          <div class="score-ring-wrap">
+            <svg class="score-ring-svg" viewBox="0 0 80 80" width="80" height="80">
+              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>
+              <circle id="ring-before" cx="40" cy="40" r="32" fill="none" stroke="#ef4444" stroke-width="5"
+                stroke-dasharray="201.06" stroke-dashoffset="201.06" stroke-linecap="round"
+                transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="ring-label-wrap">
+              <span id="score-before-val" class="ring-score">—</span>
+              <span class="ring-label">Before</span>
+            </div>
+          </div>
+          <div class="score-delta">
+            <span id="score-delta-val" class="delta-badge">—</span>
+          </div>
+          <div class="score-ring-wrap">
+            <svg class="score-ring-svg" viewBox="0 0 80 80" width="80" height="80">
+              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" stroke-width="5"/>
+              <circle id="ring-after" cx="40" cy="40" r="32" fill="none" stroke="#10b981" stroke-width="5"
+                stroke-dasharray="201.06" stroke-dashoffset="201.06" stroke-linecap="round"
+                transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="ring-label-wrap">
+              <span id="score-after-val" class="ring-score">—</span>
+              <span class="ring-label">After</span>
+            </div>
+          </div>
+        </div>
+        <p id="verdict-summary" class="verdict-summary"></p>
+      </div>
+
+      <!-- HR Perspective -->
+      <div class="card" id="hr-card">
+        <div class="card-header">HR PERSPECTIVE</div>
+        <div id="hr-verdict-pill" class="hr-verdict-pill"></div>
+        <p id="hr-first-impression" class="hr-first-impression"></p>
+        <p id="hr-reasoning" class="hr-reasoning"></p>
+        <div id="hr-strengths" class="hr-list strengths"></div>
+        <div id="hr-red-flags" class="hr-list red-flags"></div>
+      </div>
+
+      <!-- Authenticity -->
+      <div class="card" id="auth-card">
+        <div class="card-header">AUTHENTICITY</div>
+        <div class="auth-score-row">
+          <span id="auth-score-val" class="auth-score-val">—</span>
+          <span class="auth-score-label">/ 100</span>
+        </div>
+        <div id="dimension-bars" class="dimension-bars"></div>
+      </div>
+
+      <!-- Experience Realism -->
+      <div class="card" id="exp-card">
+        <div class="card-header">EXPERIENCE REALISM</div>
+        <div id="exp-realism-content" class="exp-realism-content"></div>
+        <details id="unverifiable-claims" class="unverifiable-claims">
+          <summary>Unverifiable Claims</summary>
+          <div id="unverifiable-list"></div>
+        </details>
+      </div>
+
+      <!-- Flagged Patterns -->
+      <div class="card" id="patterns-card">
+        <div class="card-header">FLAGGED PATTERNS</div>
+        <div id="patterns-list" class="patterns-list"></div>
+      </div>
+
+      <!-- Missing Keywords -->
+      <div class="card" id="keywords-card">
+        <div class="card-header">MISSING KEYWORDS</div>
+        <div id="keywords-chips" class="keywords-chips"></div>
+      </div>
+
+      <!-- Required Rewrites -->
+      <div id="rewrites-required-section" class="card">
+        <div class="card-header">REQUIRED REWRITES</div>
+        <div id="rewrites-required-list" class="rewrites-list"></div>
+      </div>
+
+      <!-- Optional Polish -->
+      <div id="rewrites-optional-section" class="card">
+        <details id="optional-details">
+          <summary class="card-header optional-summary">OPTIONAL POLISH <span id="optional-count-badge" class="count-badge"></span></summary>
+          <div id="rewrites-optional-list" class="rewrites-list" style="margin-top:12px"></div>
+        </details>
+      </div>
+
+    </section>
+  </main>
+
+</body>
+</html>

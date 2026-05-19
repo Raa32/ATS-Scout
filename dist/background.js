@@ -1,0 +1,1 @@
+(function(){"use strict";chrome.sidePanel.setPanelBehavior({openPanelOnActionClick:!1}),chrome.runtime.onMessage.addListener((e,t,n)=>(e.type==="ANALYSIS_COMPLETE"&&chrome.runtime.sendMessage({type:"RENDER_RESULTS",payload:e.payload}),e.type==="ANALYSIS_ERROR"&&chrome.runtime.sendMessage({type:"SHOW_ERROR",payload:e.payload}),n({ok:!0}),!0))})();

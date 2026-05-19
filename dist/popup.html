@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATS Scout</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/popup.js"></script>
+  <link rel="modulepreload" crossorigin href="/providers.js">
+  <link rel="stylesheet" crossorigin href="/popup.css">
+</head>
+<body>
+  <div class="noise-overlay"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="logo-area">
+        <svg class="logo-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2L17 17H3L10 2Z" fill="#f59e0b" opacity="0.9"/>
+          <path d="M10 7L13.5 14.5H6.5L10 7Z" fill="#0a0a0f"/>
+          <circle cx="10" cy="10" r="9" stroke="#f59e0b" stroke-width="1" fill="none" opacity="0.3"/>
+        </svg>
+        <span class="logo-text">ATS Scout</span>
+      </div>
+      <div class="header-actions">
+        <button id="btn-theme" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v2M7 11v2M1 7h2M11 7h2M3 3l1.4 1.4M9.6 9.6L11 11M3 11l1.4-1.4M9.6 4.4L11 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="popup-body">
+      <!-- Error banner -->
+      <div id="error-banner" class="error-banner hidden" role="alert">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#ef4444" stroke-width="1.2"/><path d="M7 4v3M7 9.5v.5" stroke="#ef4444" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span id="error-text"></span>
+        <button id="error-close" class="error-close" aria-label="Dismiss">×</button>
+      </div>
+
+      <!-- Provider Section -->
+      <section class="form-section">
+        <label class="section-label">AI PROVIDER</label>
+
+        <!-- Custom dropdown (replaces native select) -->
+        <div id="provider-dropdown" class="provider-dropdown" role="combobox" aria-expanded="false" aria-haspopup="listbox" tabindex="0">
+          <div class="provider-dropdown-selected">
+            <span id="provider-selected-logo" class="provider-dd-logo"></span>
+            <span id="provider-selected-name" class="provider-dd-name">Claude (Anthropic)</span>
+            <svg class="provider-dd-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <!-- provider-list is created by JS and portalled to document.body -->
+
+        <div id="key-hint-section" class="key-hint-section">
+          <button id="key-hint-toggle" class="key-hint-toggle" type="button">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M6 5.5v3M6 3.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            How to get a key for this provider
+          </button>
+          <div id="key-instructions" class="key-instructions hidden">
+            <pre id="key-instructions-text"></pre>
+            <a id="key-url-link" href="#" target="_blank" class="key-url-link">Open provider dashboard →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- API Key Section -->
+      <section class="form-section">
+        <label class="section-label" for="api-key-input">API KEY</label>
+        <div class="key-input-row">
+          <div class="key-input-wrapper">
+            <input
+              id="api-key-input"
+              type="password"
+              class="key-input"
+              placeholder="Paste your API key..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button id="btn-toggle-key" class="icon-btn key-eye" type="button" aria-label="Show/hide key">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><ellipse cx="7" cy="7" rx="6" ry="4" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <button id="btn-save-key" class="btn-secondary" type="button">Save</button>
+        </div>
+        <div id="key-status" class="key-status hidden">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="key-status-text">Key saved for this session</span>
+        </div>
+      </section>
+
+      <!-- Custom Provider Config -->
+      <section id="custom-provider-section" class="form-section custom-section hidden">
+        <label class="section-label">CUSTOM PROVIDER CONFIG</label>
+        <div class="custom-fields">
+          <div class="field-group">
+            <label class="field-label" for="custom-endpoint">Endpoint URL</label>
+            <input id="custom-endpoint" type="url" class="text-input" placeholder="https://api.example.com/v1/chat/completions" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="custom-auth-style">Auth Style</label>
+            <select id="custom-auth-style" class="text-input select-input">
+              <option value="bearer">Authorization: Bearer</option>
+              <option value="x-api-key">x-api-key</option>
+              <option value="api-key">api-key</option>
+              <option value="custom">Custom header name</option>
+            </select>
+          </div>
+          <div id="custom-auth-header-row" class="field-group hidden">
+            <label class="field-label" for="custom-auth-header">Auth Header Name</label>
+            <input id="custom-auth-header" type="text" class="text-input" placeholder="X-Custom-Auth" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="custom-model">Model Name</label>
+            <input id="custom-model" type="text" class="text-input" placeholder="e.g. gpt-4o, claude-3-5-sonnet" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="custom-request-format">Request Format</label>
+            <select id="custom-request-format" class="text-input select-input">
+              <option value="openai">OpenAI-compatible (messages[])</option>
+              <option value="anthropic">Anthropic-compatible (system + messages[])</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="custom-response-path">Response JSON Path</label>
+            <input id="custom-response-path" type="text" class="text-input" placeholder="choices[0].message.content" />
+          </div>
+        </div>
+      </section>
+
+      <!-- PDF Upload -->
+      <section class="form-section">
+        <label class="section-label">RESUME (PDF)</label>
+        <!-- LABEL wraps the visual zone — native HTML triggers file picker on click, no JS needed -->
+        <label for="pdf-file-input" id="pdf-drop-zone" class="pdf-drop-zone" aria-label="Upload PDF">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><polyline points="9 15 12 12 15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="drop-zone-text">Drop PDF here or <span class="browse-link">Browse</span></span>
+        </label>
+        <input id="pdf-file-input" type="file" accept=".pdf" style="display:none" aria-label="Select PDF" />
+        <div id="pdf-status" class="pdf-status hidden">
+          <div class="pdf-status-pill">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Parsed locally · never uploaded
+          </div>
+          <span id="pdf-filename" class="pdf-filename"></span>
+          <span id="pdf-pages" class="pdf-pages"></span>
+        </div>
+      </section>
+
+      <!-- Job Description -->
+      <section class="form-section">
+        <div class="jd-header">
+          <label class="section-label" for="jd-textarea">JOB DESCRIPTION</label>
+          <button id="btn-sample-jd" class="btn-ghost" type="button">Sample</button>
+        </div>
+        <textarea id="jd-textarea" class="jd-textarea" placeholder="Paste the job description here..." rows="5"></textarea>
+      </section>
+
+      <!-- Run Analysis Button -->
+      <button id="btn-run" class="btn-run" type="button" disabled>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><polygon points="3,2 11,7 3,12" fill="currentColor"/></svg>
+        Run ATS Analysis
+        <div class="btn-shimmer"></div>
+      </button>
+
+      <div id="loading-state" class="loading-state hidden">
+        <div class="tracing-beam"></div>
+        <span class="loading-text">Analysing with <span id="loading-provider-name"></span>...</span>
+      </div>
+
+      <footer class="popup-footer">
+        <span class="footer-pill">LOCAL-FIRST</span>
+        <span class="footer-pill">BYOK</span>
+        <span class="footer-pill">ZERO SERVERS</span>
+      </footer>
+    </div>
+  </div>
+
+</body>
+</html>

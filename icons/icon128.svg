@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="#0a0a0f"/>
+  <circle cx="64" cy="64" r="56" fill="url(#glow)"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.15"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#f59e0b" stroke-width="0.5" opacity="0.1" stroke-dasharray="4 3"/>
+  <!-- Main triangle -->
+  <polygon points="64,16 104,100 24,100" fill="#f59e0b" opacity="0.92"/>
+  <!-- Inner cutout -->
+  <polygon points="64,42 84,92 44,92" fill="#0a0a0f"/>
+  <!-- Scanner line -->
+  <line x1="40" y1="72" x2="88" y2="72" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <!-- Center dot -->
+  <circle cx="64" cy="72" r="4" fill="#f59e0b" opacity="0.8"/>
+</svg>
