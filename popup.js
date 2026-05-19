@@ -225,13 +225,13 @@ function getErrorMessage(errCode, providerName) {
   const map = {
     INVALID_KEY: `Invalid API key for ${providerName}. Check it and try again.`,
     RATE_LIMITED: `Rate limit hit on your ${providerName} account. Wait a moment.`,
-    BAD_REQUEST: `Request rejected by ${providerName}. The model may not support JSON output.`,
     MALFORMED_JSON: `${providerName} returned non-JSON. Try again or switch provider.`,
     EMPTY_RESPONSE: `${providerName} returned empty response. Try again.`,
   };
   if (map[errCode]) return map[errCode];
-  if (errCode.startsWith('API_ERROR_')) return `API error ${errCode.replace('API_ERROR_', '')} from ${providerName}.`;
-  return `Unexpected error from ${providerName}: ${errCode}`;
+  if (errCode.startsWith('BAD_REQUEST')) return `${providerName} rejected request. ${errCode.replace('BAD_REQUEST:', '').trim() || 'Check model name or request format.'}`;
+  if (errCode.startsWith('API_ERROR_')) return `${providerName} API error: ${errCode.replace('API_ERROR_', '')}`;
+  return `Error from ${providerName}: ${errCode}`;
 }
 
 // ── Theme ─────────────────────────────────────────────────────

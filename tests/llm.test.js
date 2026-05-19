@@ -62,7 +62,7 @@ describe('analyzeResume — provider wire formats', () => {
     const body = JSON.parse(opts.body);
     expect(body.system).toBeTruthy();
     expect(body.messages[0].role).toBe('user');
-    expect(body.model).toBe('claude-sonnet-4-20250514');
+    expect(body.model).toBe('claude-3-5-sonnet-20241022');
   });
 
   it('openai: sends Authorization Bearer and messages array with system', async () => {
